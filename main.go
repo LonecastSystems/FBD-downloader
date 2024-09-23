@@ -101,33 +101,37 @@ var Leagues = map[string][]int32{
 	"WA": {1},
 }
 
-func GetEnvVariables() (email string, password string, yearsInt int, err error) {
+func GetEnvVariables() (email string, password string, path string, yearsInt int, err error) {
 	email = os.Getenv("email")
 	if email == "" {
-		return "", "", 0, errors.New("no email")
+		return "", "", "", 0, errors.New("no email")
 	}
 
 	password = os.Getenv("password")
 	if password == "" {
-		return "", "", 0, errors.New("no password")
+		return "", "", "", 0, errors.New("no password")
+	}
+
+	path = os.Getenv("path")
+	if path == "" {
+		return "", "", "", 0, errors.New("path is empty")
 	}
 
 	years := os.Getenv("years")
 	if years == "" {
-		log.Panic("No years threshold set")
-		return "", "", 0, errors.New("no years threshold set")
+		return "", "", "", 0, errors.New("no years threshold set")
 	}
 
 	yearsInt, err = strconv.Atoi(years)
 	if err != nil {
-		return "", "", 0, errors.New("failed parsing year")
+		return "", "", "", 0, errors.New("failed parsing year")
 	}
 
-	return email, password, yearsInt, err
+	return email, password, path, yearsInt, err
 }
 
 func main() {
-	email, password, yearsInt, err := GetEnvVariables()
+	email, password, path, yearsInt, err := GetEnvVariables()
 	if err != nil {
 		log.Panic(err.Error())
 	}
@@ -169,8 +173,10 @@ func main() {
 		for _, leaguecode := range leagueCodes {
 			page.MustElement(fmt.Sprintf("#ContentPlaceHolder2_%v%v", code, leaguecode)).MustClick()
 		}
-		fmt.Print(country)
-		page.MustElement("#ContentPlaceHolder2_ButtonEX2").MustClick().MustWaitInteractable()
+
+		clicked := page.MustElement("#ContentPlaceHolder2_ButtonEX2").MustClick()
+		bytes := clicked.MustFrame().Browser().MustWaitDownload()()
+		os.WriteFile(fmt.Sprintf("%v\\FBDResults%v.xlsx", path, country), bytes, 0644)
 
 		//Safer than MustDoubleClick!
 		page.MustElement("#ContentPlaceHolder2_leagueSA").MustClick()
