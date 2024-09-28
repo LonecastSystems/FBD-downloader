@@ -10,10 +10,10 @@ import (
 )
 
 var Countries = map[string]string{
-	"ARGENTINA":    "AR",
-	"AUSTRIA":      "AU",
-	"BELGIUM":      "B",
-	"BOLIVIA":      "B0",
+	"ARGENTINA": "AR",
+	"AUSTRIA":   "AU",
+	"BELGIUM":   "B",
+	//"BOLIVIA":      "BO",
 	"BRAZIL":       "BR",
 	"BULGARIA":     "BU",
 	"CHILE":        "CH",
@@ -58,7 +58,7 @@ var Leagues = map[string][]int32{
 	"AR": {1},
 	"AU": {1, 2},
 	"B":  {1, 2},
-	"B0": {1},
+	//"BO": {1},
 	"BR": {1},
 	"BU": {1},
 	"CH": {1},
@@ -107,9 +107,9 @@ func Download(email string, password string, path string, yearsInt int) {
 	page.MustElement("#ContentPlaceHolder2_submitButton").MustClick()
 	page.MustWaitStable()
 
-	_, err := page.Elements("#ContentPlaceHolder2_Label3")
-	if err != nil {
-		log.Panic("Invalid credentials")
+	eles, _ := page.Elements("#ContentPlaceHolder2_Label3")
+	if !eles.Empty() {
+		log.Panicf("Invalid credentials: %v", eles.First().MustText())
 	}
 
 	//Deselect years
@@ -131,7 +131,7 @@ func Download(email string, password string, path string, yearsInt int) {
 	for country, code := range Countries {
 		leagueCodes, exists := Leagues[code]
 		if !exists {
-			continue
+			log.Panicf("%v is missing", code)
 		}
 
 		for _, leaguecode := range leagueCodes {
@@ -146,6 +146,4 @@ func Download(email string, password string, path string, yearsInt int) {
 		page.MustElement("#ContentPlaceHolder2_leagueSA").MustClick()
 		page.MustElement("#ContentPlaceHolder2_leagueSA").MustClick()
 	}
-
-	os.Exit(1)
 }
