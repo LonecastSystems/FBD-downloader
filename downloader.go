@@ -132,6 +132,8 @@ func Download(email string, password string, path string, yearsInt int) {
 		}
 	}
 
+	page.MustElement("#ContentPlaceHolder2_leagueSA").MustClick()
+
 	for country, code := range Countries {
 		leagueCodes, exists := Leagues[code]
 		if !exists {
