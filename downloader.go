@@ -125,7 +125,11 @@ func Download(email string, password string, path string, yearsInt int) {
 		page.MustElement(fmt.Sprintf("#ContentPlaceHolder2_%v", year)).MustClick()
 
 		yearShort := year - 2000
-		page.MustElement(fmt.Sprintf("#ContentPlaceHolder2_%v", fmt.Sprintf("%v-%v", yearShort, yearShort+1))).MustClick()
+
+		winterSeason, err := page.Timeout(10 * time.Second).Element(fmt.Sprintf("#ContentPlaceHolder2_%v", fmt.Sprintf("%v-%v", yearShort, yearShort+1)))
+		if winterSeason != nil && err == nil {
+			winterSeason.MustClick()
+		}
 	}
 
 	for country, code := range Countries {
