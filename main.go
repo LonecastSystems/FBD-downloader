@@ -1,14 +1,15 @@
 package main
 
-import (
-	"log"
-)
-
 func main() {
-	email, password, path, yearsInt, err := GetEnvVariables()
-	if err != nil {
-		log.Panic(err.Error())
+	seasons := []int{2021, 2022, 2023, 2024, 2025}
+
+	config := DashboardConfig{
+		Email:         "",
+		Password:      "",
+		Path:          "",
+		SummerSeasons: seasons,
+		WinterSeasons: seasons,
 	}
 
-	Download(email, password, path, yearsInt)
+	Download(config)
 }
