@@ -101,17 +101,27 @@ var Leagues = map[Country][]int32{
 	WALES:        {1},
 }
 
+type Dashboard struct {
+	Email    string
+	Password string
+	Path     string
+	Config   DashboardConfig
+}
+
 type DashboardConfig struct {
-	Email         string
-	Password      string
-	Path          string
 	Leagues       map[Country][]int32
 	SummerSeasons []int
 	WinterSeasons []int
 }
 
-func Download(config DashboardConfig) {
-	email, password := config.Email, config.Password
+func NewDashboard(config DashboardConfig) *Dashboard {
+	return &Dashboard{Config: config}
+}
+
+func (dashboard Dashboard) Download() {
+	config := dashboard.Config
+
+	email, password := dashboard.Email, dashboard.Password
 	if email == "" || password == "" {
 		log.Fatal("Invalid credentials!")
 	}
@@ -121,7 +131,7 @@ func Download(config DashboardConfig) {
 		log.Fatal("No seasons selected!")
 	}
 
-	path := config.Path
+	path := dashboard.Path
 	if path == "" {
 		log.Fatal("Invalid path!")
 	}

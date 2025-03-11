@@ -3,13 +3,14 @@ package main
 func main() {
 	seasons := []int{2021, 2022, 2023, 2024, 2025}
 
-	config := DashboardConfig{
-		Email:         "",
-		Password:      "",
-		Path:          "",
+	dashboard := NewDashboard(DashboardConfig{
 		SummerSeasons: seasons,
 		WinterSeasons: seasons,
-	}
+	})
 
-	Download(config)
+	dashboard.Email = ""
+	dashboard.Password = ""
+	dashboard.Path = ""
+
+	dashboard.Download()
 }
