@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"slices"
 	"time"
 
 	"github.com/go-rod/rod"
@@ -56,7 +57,7 @@ const (
 	WALES        Country = "WA"
 )
 
-var Leagues = map[Country][]int32{
+var ValidLeagues = map[Country][]int32{
 	ARGENTINA: {1},
 	AUSTRIA:   {1, 2},
 	BELGIUM:   {1, 2},
@@ -189,12 +190,23 @@ func (dashboard Dashboard) Download() {
 	//Select leagues
 	leagues := config.Leagues
 	if len(leagues) == 0 {
-		leagues = Leagues
+		leagues = ValidLeagues
 	}
 
 	//Select all leagues
 	for code, leagueCodes := range leagues {
+		validCodes, exists := ValidLeagues[code]
+		if !exists {
+			log.Printf("%v is an invalid country code", code)
+			continue
+		}
+
 		for _, leagueCode := range leagueCodes {
+			if !slices.Contains(validCodes, leagueCode) {
+				log.Printf("%v is an invalid league code", leagueCode)
+				continue
+			}
+
 			page.MustElement(fmt.Sprintf("#ContentPlaceHolder2_%v%v", code, leagueCode)).MustClick()
 		}
 
