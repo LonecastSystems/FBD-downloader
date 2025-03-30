@@ -137,9 +137,8 @@ func (dashboard Dashboard) Download() {
 		log.Fatal("Invalid path!")
 	}
 
-	page := rod.New().MustConnect().MustPage("https://www.football-bet-data.com/signin/").MustWaitStable()
-
 	//Login
+	page := rod.New().MustConnect().MustPage("https://www.football-bet-data.com/signin/").MustWaitStable()
 	page.MustElement("#ContentPlaceHolder2_unameTextBox").MustInput(email)
 	page.MustElement("#ContentPlaceHolder2_pwordTextBox").MustInput(password)
 	page.MustElement("#ContentPlaceHolder2_submitButton").MustClick()
@@ -152,6 +151,10 @@ func (dashboard Dashboard) Download() {
 
 	//Go to dashboard
 	page.MustNavigate("https://www.football-bet-data.com/dashboard/").MustWaitStable()
+
+	//Reselect matches with score predictions
+	page.MustElement("#ContentPlaceHolder2_scoreSA").MustClick().MustClick()
+	page.MustElement("#ContentPlaceHolder2_np").MustClick().MustClick()
 
 	currentYear := time.Now().Year()
 
@@ -217,7 +220,6 @@ func (dashboard Dashboard) Download() {
 
 		//Uncheck all leagues
 		//Safer than MustDoubleClick!
-		page.MustElement("#ContentPlaceHolder2_leagueSA").MustClick()
-		page.MustElement("#ContentPlaceHolder2_leagueSA").MustClick()
+		page.MustElement("#ContentPlaceHolder2_leagueSA").MustClick().MustClick()
 	}
 }
