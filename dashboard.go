@@ -214,7 +214,11 @@ func (dashboard Dashboard) Download() {
 		}
 
 		//Download the excel sheet
-		clicked := page.MustElement("#ContentPlaceHolder2_ButtonEX2").MustClick()
+		download := page.MustElement("#ContentPlaceHolder2_ButtonEX2")
+		download.MustScrollIntoView()
+		clicked := download.MustClick()
+
+		//Wait for the download to finish
 		bytes := clicked.MustFrame().Browser().MustWaitDownload()()
 		os.WriteFile(fmt.Sprintf("%v\\FBDResults_%v.xlsx", path, code), bytes, 0644)
 
