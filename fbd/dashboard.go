@@ -1,4 +1,4 @@
-package main
+package fbd
 
 import (
 	"fmt"
