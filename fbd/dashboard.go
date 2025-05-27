@@ -138,6 +138,8 @@ func (dashboard Dashboard) Download() {
 	}
 
 	//Login
+	log.Printf("Logging in...\n")
+
 	page := rod.New().MustConnect().MustPage("https://www.football-bet-data.com/signin/").MustWaitStable()
 	page.MustElement("#ContentPlaceHolder2_unameTextBox").MustInput(email)
 	page.MustElement("#ContentPlaceHolder2_pwordTextBox").MustInput(password)
@@ -150,6 +152,8 @@ func (dashboard Dashboard) Download() {
 	}
 
 	//Go to dashboard
+	log.Printf("Logged in, navigating to dashboard...\n")
+
 	page.MustNavigate("https://www.football-bet-data.com/dashboard/").MustWaitStable()
 
 	//Reselect matches with score predictions
@@ -216,11 +220,17 @@ func (dashboard Dashboard) Download() {
 		//Download the excel sheet
 		download := page.MustElement("#ContentPlaceHolder2_ButtonEX2")
 		download.MustScrollIntoView()
+
+		log.Printf("Downloading %v...\n", code)
+
+		then := time.Now()
 		clicked := download.MustClick()
 
 		//Wait for the download to finish
 		bytes := clicked.MustFrame().Browser().MustWaitDownload()()
 		os.WriteFile(fmt.Sprintf("%v\\FBDResults_%v.xlsx", path, code), bytes, 0644)
+
+		log.Printf("Downloaded %v in %v\n", code, time.Since(then))
 
 		//Uncheck all leagues
 		//Safer than MustDoubleClick!
