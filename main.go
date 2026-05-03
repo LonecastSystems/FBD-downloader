@@ -9,7 +9,6 @@ import (
 func main() {
 	email := ""
 	password := ""
-	outputPath := "E1_2025.xlsx"
 
 	client, err := fbd.NewClient()
 	if err != nil {
@@ -26,6 +25,7 @@ func main() {
 		}
 	}()
 
+	dashboardPath := "dashboard_E_2025.xlsx"
 	if err := client.NewDashboardConfigBuilder().
 		WithMatchesNoPrediction().
 		WithLeagues(map[fbd.Country][]string{fbd.ENGLAND: {"1", "2"}}).
@@ -37,9 +37,21 @@ func main() {
 			fbd.MonthSep, fbd.MonthOct, fbd.MonthNov, fbd.MonthDec,
 		}).
 		Build().
-		ExportToExcel(outputPath); err != nil {
+		ExportToExcel(dashboardPath); err != nil {
 		log.Fatalf("dashboard export failed: %v", err)
 	}
 
-	log.Printf("Dashboard Excel exported to %s", outputPath)
+	log.Printf("Dashboard Excel exported to %s", dashboardPath)
+
+	fixturesOutputPath := "fixtures_E_2025.xlsx"
+	if err := client.NewFixturesConfigBuilder().
+		WithLeagues(map[fbd.Country][]string{fbd.ENGLAND: {"1", "2"}}).
+		WithSummerSeasons([]int{2025}).
+		WithWinterSeasons([]int{2025}).
+		Build().
+		ExportToExcel(fixturesOutputPath); err != nil {
+		log.Fatalf("fixtures export failed: %v", err)
+	}
+
+	log.Printf("Fixtures Excel exported to %s", fixturesOutputPath)
 }
