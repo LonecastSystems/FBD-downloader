@@ -10,6 +10,10 @@
             "request": "launch",
             "mode": "auto",
             "program": "${fileDirname}",
+            "env": {
+              "FBD_USERNAME": "",
+              "FBD_PASSWORD": "",
+            },
             "args": []
         }
     ]
