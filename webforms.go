@@ -1,15 +1,31 @@
 package fbd
 
 import (
+	"context"
 	"fmt"
 	"html"
 	"io"
+	"net/http"
 	"net/url"
 	"regexp"
+	"strings"
 )
 
-func (c *Client) getWebFormsFields(pageURL string) (url.Values, error) {
-	resp, err := c.httpClient.Get(pageURL)
+func (c *Client) postForm(ctx context.Context, url string, data url.Values) (*http.Response, error) {
+	postReq, err := http.NewRequestWithContext(ctx, http.MethodPost, url, strings.NewReader(data.Encode()))
+	if err != nil {
+		return nil, fmt.Errorf("create post request: %w", err)
+	}
+	postReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	return c.httpClient.Do(postReq)
+}
+
+func (c *Client) getWebFormsFields(ctx context.Context, pageURL string) (url.Values, error) {
+	getReq, err := http.NewRequestWithContext(ctx, http.MethodGet, pageURL, nil)
+	if err != nil {
+		return nil, fmt.Errorf("create get request: %w", err)
+	}
+	resp, err := c.httpClient.Do(getReq)
 	if err != nil {
 		return nil, fmt.Errorf("get page %s: %w", pageURL, err)
 	}

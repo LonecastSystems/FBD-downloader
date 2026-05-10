@@ -1,6 +1,7 @@
 package fbd
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"log/slog"
@@ -419,14 +420,14 @@ func (b *dashboardConfigBuilder) Build() *dashboardConfig {
 	return &b.config
 }
 
-func (c *dashboardConfig) ExportToExcel() ([]byte, error) {
+func (c *dashboardConfig) ExportToExcel(ctx context.Context) ([]byte, error) {
 	if err := c.client.ensureReady(); err != nil {
 		return nil, err
 	}
 
 	slog.Info("Exporting dashboard")
 
-	fields, err := c.client.getWebFormsFields(c.url)
+	fields, err := c.client.getWebFormsFields(ctx, c.url)
 	if err != nil {
 		return nil, err
 	}
@@ -440,7 +441,7 @@ func (c *dashboardConfig) ExportToExcel() ([]byte, error) {
 		}
 	}
 
-	resp, err := c.client.httpClient.PostForm(c.url, fields)
+	resp, err := c.client.postForm(ctx, c.url, fields)
 	if err != nil {
 		return nil, fmt.Errorf("post dashboard form: %w", err)
 	}

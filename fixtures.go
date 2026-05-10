@@ -1,6 +1,7 @@
 package fbd
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"log/slog"
@@ -102,14 +103,14 @@ func (b *fixturesConfigBuilder) Build() *fixturesConfig {
 	return &b.config
 }
 
-func (c *fixturesConfig) ExportToExcel() ([]byte, error) {
+func (c *fixturesConfig) ExportToExcel(ctx context.Context) ([]byte, error) {
 	if err := c.client.ensureReady(); err != nil {
 		return nil, err
 	}
 
 	slog.Info("Exporting fixtures")
 
-	fields, err := c.client.getWebFormsFields(c.url)
+	fields, err := c.client.getWebFormsFields(ctx, c.url)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +124,7 @@ func (c *fixturesConfig) ExportToExcel() ([]byte, error) {
 		}
 	}
 
-	resp, err := c.client.httpClient.PostForm(c.url, fields)
+	resp, err := c.client.postForm(ctx, c.url, fields)
 	if err != nil {
 		return nil, fmt.Errorf("post fixtures form: %w", err)
 	}

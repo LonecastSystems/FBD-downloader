@@ -1,6 +1,7 @@
 package fbd
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -10,7 +11,7 @@ import (
 const signInURL string = "https://www.football-bet-data.com/signin/"
 const sessionCookieName string = "ASP.NET_SessionId"
 
-func (c *Client) SignIn(email, password string) error {
+func (c *Client) SignIn(ctx context.Context, email, password string) error {
 	if err := c.ensureReady(); err != nil {
 		return err
 	}
@@ -21,7 +22,7 @@ func (c *Client) SignIn(email, password string) error {
 
 	slog.Info("Signing in to FBD")
 
-	fields, err := c.getWebFormsFields(signInURL)
+	fields, err := c.getWebFormsFields(ctx, signInURL)
 	if err != nil {
 		return err
 	}
@@ -30,8 +31,17 @@ func (c *Client) SignIn(email, password string) error {
 	fields.Set("ctl00$ContentPlaceHolder2$pwordTextBox", password)
 	fields.Set("ctl00$ContentPlaceHolder2$submitButton", "Submit")
 
-	if _, err := c.httpClient.PostForm(signInURL, fields); err != nil {
+	resp, err := c.postForm(ctx, signInURL, fields)
+	if err != nil {
 		return fmt.Errorf("post sign-in form: %w", err)
+	}
+
+	cookies := resp.Cookies()
+	for _, cookie := range cookies {
+		if cookie.Name == sessionCookieName && cookie.Value != "" {
+			c.enforceSession = true
+			break
+		}
 	}
 
 	hasSessionCookie := false
@@ -49,12 +59,12 @@ func (c *Client) SignIn(email, password string) error {
 	return nil
 }
 
-func (c *Client) SignOut() error {
+func (c *Client) SignOut(ctx context.Context) error {
 	if err := c.ensureReady(); err != nil {
 		return err
 	}
 
-	fields, err := c.getWebFormsFields(homeURL)
+	fields, err := c.getWebFormsFields(ctx, homeURL)
 	if err != nil {
 		return err
 	}
@@ -63,10 +73,19 @@ func (c *Client) SignOut() error {
 
 	fields.Set("ctl00$logoutButton2", "Sign Out")
 
-	if _, err := c.httpClient.PostForm(homeURL, fields); err != nil {
+	resp, err := c.postForm(ctx, homeURL, fields)
+	if err != nil {
 		return fmt.Errorf("post sign-out form: %w", err)
 	}
+	defer resp.Body.Close()
 
+	cookies := resp.Cookies()
+	for _, cookie := range cookies {
+		if cookie.Name == sessionCookieName && cookie.Value != "" {
+			c.enforceSession = false
+			break
+		}
+	}
 	c.enforceSession = false
 
 	return nil
