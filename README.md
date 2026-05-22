@@ -1,4 +1,4 @@
-# FBD-downloader
+# FBD
 
 Go library for downloading [Football Bet Data](https://www.football-bet-data.com/) exports programmatically.
 
@@ -12,13 +12,13 @@ Go library for downloading [Football Bet Data](https://www.football-bet-data.com
 Install:
 
 ```bash
-go get github.com/LonecastSystems/FBD-downloader
+go get github.com/LonecastSystems/fbd-go
 ```
 
 Import the package:
 
 ```go
-import fbd "github.com/LonecastSystems/FBD-downloader"
+import fbd "github.com/LonecastSystems/fbd-go"
 ```
 
 Basic flow (with `os` imported):
